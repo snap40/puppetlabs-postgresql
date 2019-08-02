@@ -2,7 +2,7 @@ require 'spec_helper'
 
 describe 'postgresql::server::config', type: :class do
   let(:pre_condition) do
-    'include postgresql::server'
+    'class { postgresql::server: manage_selinux => true }'
   end
 
   describe 'on RedHat 7' do
@@ -16,7 +16,29 @@ describe 'postgresql::server::config', type: :class do
         id: 'root',
         path: '/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin',
         selinux: true,
+        os: {
+          'architecture' => 'x86_64',
+          'family'       => 'RedHat',
+          'hardware'     => 'x86_64',
+          'name'         => 'CentOS',
+          'release'      => {
+            'full'  => '7.6.1810',
+            'major' => '7',
+            'minor' => '6',
+          },
+        },
       }
+    end
+
+    it 'has SELinux port defined' do
+      is_expected.to contain_selinux__port('postgresql_custom_port')
+        .with(
+          ensure:   'present',
+          seltype:  'postgresql_port_t',
+          protocol: 'tcp',
+          port:     5432,
+        )
+        .that_comes_before('Postgresql::Server::Config_entry[port]')
     end
 
     it 'has the correct systemd-override file' do
@@ -65,6 +87,16 @@ describe 'postgresql::server::config', type: :class do
         id: 'root',
         path: '/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin',
         selinux: true,
+        os: {
+          'architecture' => 'x86_64',
+          'family'       => 'RedHat',
+          'hardware'     => 'x86_64',
+          'name'         => 'Fedora',
+          'release'      => {
+            'full'  => '21',
+            'major' => '21',
+          },
+        },
       }
     end
 
