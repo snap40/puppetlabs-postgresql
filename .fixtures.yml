@@ -9,6 +9,7 @@ fixtures:
     firewall: "https://github.com/puppetlabs/puppetlabs-firewall.git"
     provision: "git://github.com/puppetlabs/provision.git"
     puppet_agent: 'git://github.com/puppetlabs/puppetlabs-puppet_agent.git'
+    selinux: 'https://github.com/voxpupuli/puppet-selinux.git'
     stdlib: "https://github.com/puppetlabs/puppetlabs-stdlib.git"
     yumrepo_core: 
       repo: "https://github.com/puppetlabs/puppetlabs-yumrepo_core.git"
