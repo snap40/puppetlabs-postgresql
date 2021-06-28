@@ -1,13 +1,16 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 describe 'postgresql::server::tablespace', type: :define do
   let :facts do
     {
-      osfamily: 'Debian',
-      operatingsystem: 'Debian',
-      operatingsystemrelease: '8.0',
+      os: {
+        family: 'Debian',
+        name: 'Debian',
+        release: { 'full' => '8.0', 'major' => '8' },
+      },
       kernel: 'Linux',
-      concat_basedir: tmpfilename('tablespace'),
       id: 'root',
       path: '/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin',
     }
@@ -29,7 +32,7 @@ describe 'postgresql::server::tablespace', type: :define do
 
   it { is_expected.to contain_file('/srv/data/foo').with_ensure('directory') }
   it { is_expected.to contain_postgresql__server__tablespace('test') }
-  it { is_expected.to contain_postgresql_psql('CREATE TABLESPACE "test"').that_requires('Class[postgresql::server::service]') }
+  it { is_expected.to contain_postgresql_psql('CREATE TABLESPACE "test"').that_requires('Service[postgresqld]') }
 
   context 'with different owner' do
     let :params do

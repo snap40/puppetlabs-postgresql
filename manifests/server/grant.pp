@@ -11,6 +11,8 @@
 # @param onlyif_exists Create grant only if doesn't exist
 # @param connect_settings Specifies a hash of environment variables used when connecting to a remote server.
 # @param ensure Specifies whether to grant or revoke the privilege. Default is to grant the privilege. Valid values: 'present', 'absent'.
+# @param group Sets the OS group to run psql
+# @param psql_path Sets the path to psql command
 define postgresql::server::grant (
   String $role,
   String $db,
@@ -44,22 +46,28 @@ define postgresql::server::grant (
   Enum['present',
         'absent'
   ] $ensure                        = 'present',
+  String $group                    = $postgresql::server::group,
+  String $psql_path                = $postgresql::server::psql_path,
 ) {
-
   case $ensure {
     default: {
       # default is 'present'
-      $sql_command = 'GRANT %s ON %s "%s"%s TO "%s"'
+      $sql_command = 'GRANT %s ON %s "%s%s" TO %s'
+      $sql_command_unquoted = 'GRANT %s ON %s %s%s TO %s'
       $unless_is = true
     }
     'absent': {
-      $sql_command = 'REVOKE %s ON %s "%s"%s FROM "%s"'
+      $sql_command = 'REVOKE %s ON %s "%s%s" FROM %s'
+      $sql_command_unquoted = 'REVOKE %s ON %s %s%s FROM %s'
       $unless_is = false
     }
   }
 
-  $group     = $postgresql::server::group
-  $psql_path = $postgresql::server::psql_path
+  # Quote the role if not PUBLIC
+  $_query_role = $role ? {
+    'PUBLIC' => 'PUBLIC',
+    default => "\"${role}\""
+  }
 
   if ! $object_name {
     $_object_name = $db
@@ -104,7 +112,7 @@ define postgresql::server::grant (
           /^CONNECT$/,
           /^CREATE$/,
           /^TEMP$/,
-          /^TEMPORARY$/
+          /^TEMPORARY$/,
         ]                => $_privilege,
         default          => fail('Illegal value for $privilege parameter'),
       }
@@ -112,9 +120,10 @@ define postgresql::server::grant (
       $on_db = $psql_db
       $onlyif_function = $ensure ? {
         default  => undef,
-        'absent' =>  'role_exists',
+        'absent' => 'role_exists',
       }
       $arguments = ''
+      $_enquote_object = true
     }
     'SCHEMA': {
       $unless_privilege = $_privilege ? {
@@ -123,7 +132,7 @@ define postgresql::server::grant (
         Pattern[
           /^$/,
           /^CREATE$/,
-          /^USAGE$/
+          /^USAGE$/,
         ]                => $_privilege,
         default          => fail('Illegal value for $privilege parameter'),
       }
@@ -131,6 +140,7 @@ define postgresql::server::grant (
       $on_db = $db
       $onlyif_function = undef
       $arguments = ''
+      $_enquote_object = true
     }
     'SEQUENCE': {
       $unless_privilege = $_privilege ? {
@@ -140,7 +150,7 @@ define postgresql::server::grant (
           /^ALL PRIVILEGES$/,
           /^SELECT$/,
           /^UPDATE$/,
-          /^USAGE$/
+          /^USAGE$/,
         ]       => $_privilege,
         default => fail('Illegal value for $privilege parameter'),
       }
@@ -148,6 +158,7 @@ define postgresql::server::grant (
       $on_db = $db
       $onlyif_function = undef
       $arguments = ''
+      $_enquote_object = true
     }
     'ALL SEQUENCES IN SCHEMA': {
       case $_privilege {
@@ -157,14 +168,15 @@ define postgresql::server::grant (
           /^ALL PRIVILEGES$/,
           /^SELECT$/,
           /^UPDATE$/,
-          /^USAGE$/
-        ]:       { }
+          /^USAGE$/,
+        ]:       {}
         default: { fail('Illegal value for $privilege parameter') }
       }
       $unless_function = 'custom'
       $on_db = $db
       $onlyif_function = undef
       $arguments = ''
+      $_enquote_object = true
 
       $schema = $object_name
 
@@ -271,7 +283,7 @@ define postgresql::server::grant (
           /^SELECT$/,
           /^TRIGGER$/,
           /^TRUNCATE$/,
-          /^UPDATE$/
+          /^UPDATE$/,
         ]       => $_privilege,
         default => fail('Illegal value for $privilege parameter'),
       }
@@ -282,6 +294,7 @@ define postgresql::server::grant (
         default => undef,
       }
       $arguments = ''
+      $_enquote_object = true
     }
     'ALL TABLES IN SCHEMA': {
       case $_privilege {
@@ -295,14 +308,15 @@ define postgresql::server::grant (
           /^SELECT$/,
           /^TRIGGER$/,
           /^TRUNCATE$/,
-          /^UPDATE$/
-        ]:       { }
+          /^UPDATE$/,
+        ]:       {}
         default: { fail('Illegal value for $privilege parameter') }
       }
       $unless_function = 'custom'
       $on_db = $db
       $onlyif_function = undef
       $arguments = ''
+      $_enquote_object = true
 
       $schema = $object_name
 
@@ -330,7 +344,6 @@ define postgresql::server::grant (
                  GROUP BY t.tablename
                ) AS j WHERE j.priv_count < 7
              )"
-
         } else {
           # GRANT $_privilege
           $custom_unless = "SELECT 1 WHERE NOT EXISTS
@@ -355,7 +368,6 @@ define postgresql::server::grant (
              )"
         }
       }
-
     }
     'LANGUAGE': {
       $unless_privilege = $_privilege ? {
@@ -364,7 +376,7 @@ define postgresql::server::grant (
         Pattern[
           /^$/,
           /^CREATE$/,
-          /^USAGE$/
+          /^USAGE$/,
         ]                => $_privilege,
         default          => fail('Illegal value for $privilege parameter'),
       }
@@ -375,6 +387,7 @@ define postgresql::server::grant (
         default => undef,
       }
       $arguments = ''
+      $_enquote_object = false
     }
     'FUNCTION': {
       $unless_privilege = $_privilege ? {
@@ -392,8 +405,9 @@ define postgresql::server::grant (
         true    => 'function_exists',
         default => undef,
       }
-      $_quoted_args = join($object_arguments.map |$arg| { "\"${arg}\"" }, ',')
-      $arguments = "(${_quoted_args})"
+      $_joined_args = join($object_arguments, ',')
+      $arguments = "(${_joined_args})"
+      $_enquote_object = false
     }
 
     default: {
@@ -411,7 +425,10 @@ define postgresql::server::grant (
   # }
   case $_object_name {
     Array:   {
-      $_togrant_object = join($_object_name, '"."')
+      $_togrant_object = $_enquote_object ? {
+        false   => join($_object_name, '.'),
+        default => join($_object_name, '"."'),
+      }
       # Never put double quotes into has_*_privilege function
       $_granted_object = join($_object_name, '.')
     }
@@ -421,22 +438,30 @@ define postgresql::server::grant (
     }
   }
 
+  # Function like has_database_privilege() refer the PUBLIC pseudo role as 'public'
+  # So we need to replace 'PUBLIC' by 'public'.
+
   $_unless = $unless_function ? {
-      false    => undef,
-      'custom' => $custom_unless,
-      default  => "SELECT 1 WHERE ${unless_function}('${role}',
-                  '${_granted_object}${arguments}', '${unless_privilege}') = ${unless_is}",
+    false    => undef,
+    'custom' => $custom_unless,
+    default  => $role ? {
+      'PUBLIC' => "SELECT 1 WHERE ${unless_function}('public', '${_granted_object}${arguments}', '${unless_privilege}') = ${unless_is}",
+      default  => "SELECT 1 WHERE ${unless_function}('${role}', '${_granted_object}${arguments}', '${unless_privilege}') = ${unless_is}",
+    }
   }
 
   $_onlyif = $onlyif_function ? {
     'table_exists'    => "SELECT true FROM pg_tables WHERE tablename = '${_togrant_object}'",
     'language_exists' => "SELECT true from pg_language WHERE lanname = '${_togrant_object}'",
-    'role_exists'     => "SELECT 1 FROM pg_roles WHERE rolname = '${role}'",
+    'role_exists'     => "SELECT 1 FROM pg_roles WHERE rolname = '${role}' or '${role}' = 'PUBLIC'",
     'function_exists' => "SELECT true FROM pg_proc WHERE (oid::regprocedure)::text = '${_togrant_object}${arguments}'",
     default           => undef,
   }
 
-  $grant_cmd = sprintf($sql_command, $_privilege, $_object_type, $_togrant_object, $arguments, $role)
+  $grant_cmd = $_enquote_object ? {
+    false   => sprintf($sql_command_unquoted, $_privilege, $_object_type, $_togrant_object, $arguments, $_query_role),
+    default => sprintf($sql_command, $_privilege, $_object_type, $_togrant_object, $arguments, $_query_role),
+  }
 
   postgresql_psql { "grant:${name}":
     command          => $grant_cmd,

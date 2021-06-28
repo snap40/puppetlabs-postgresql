@@ -1,155 +1,32 @@
 ---
 ".gitlab-ci.yml":
   delete: true
-".travis.yml":
-  dist: trusty
-  user: puppet
-  secure: ''
-  branches:
-  - release
-  includes:
-  - bundler_args: 
-    dist: trusty
-    env: PLATFORMS=debian_puppet5
-    rvm: 2.5.3
-    before_script:
-    - bundle exec rake 'litmus:provision_list[waffle_debian]'
-    - bundle exec rake 'litmus:install_agent[puppet5]'
-    - bundle exec rake litmus:install_module
-    script:
-    - bundle exec rake litmus:acceptance:parallel
-    services: docker
-    sudo: required
-    stage: acceptance
-  - bundler_args: 
-    dist: trusty
-    env: PLATFORMS=debian_puppet6
-    rvm: 2.5.3
-    before_script:
-    - bundle exec rake 'litmus:provision_list[waffle_debian]'
-    - bundle exec rake 'litmus:install_agent[puppet6]'
-    - bundle exec rake litmus:install_module
-    script:
-    - bundle exec rake litmus:acceptance:parallel
-    services: docker
-    sudo: required
-    stage: acceptance
-  - bundler_args: 
-    dist: trusty
-    env: PLATFORMS=ubuntu_puppet5
-    rvm: 2.5.3
-    before_script:
-    - bundle exec rake 'litmus:provision_list[waffle_ubuntu]'
-    - bundle exec rake 'litmus:install_agent[puppet5]'
-    - bundle exec rake litmus:install_module
-    script:
-    - bundle exec rake litmus:acceptance:parallel
-    services: docker
-    sudo: required
-    stage: acceptance
-  - bundler_args: 
-    dist: trusty
-    env: PLATFORMS=ubuntu_puppet6
-    rvm: 2.5.3
-    before_script:
-    - time bundle exec rake 'litmus:provision_list[waffle_ubuntu]'
-    - time bundle exec rake 'litmus:install_agent[puppet6]'
-    - time bundle exec rake litmus:install_module
-    script:
-    - bundle exec rake litmus:acceptance:parallel
-    services: docker
-    sudo: required
-    stage: acceptance
-  - bundler_args: 
-    dist: trusty
-    env: PLATFORMS=centos6_puppet5
-    rvm: 2.5.3
-    before_script:
-    - bundle exec rake 'litmus:provision_list[waffle_centos6]'
-    - bundle exec rake 'litmus:install_agent[puppet5]'
-    - bundle exec rake litmus:install_module
-    script:
-    - bundle exec rake litmus:acceptance:parallel
-    services: docker
-    sudo: required
-    stage: acceptance
-  - bundler_args: 
-    dist: trusty
-    env: PLATFORMS=centos6_puppet6
-    rvm: 2.5.3
-    before_script:
-    - bundle exec rake 'litmus:provision_list[waffle_centos6]'
-    - bundle exec rake 'litmus:install_agent[puppet6]'
-    - bundle exec rake litmus:install_module
-    script:
-    - bundle exec rake litmus:acceptance:parallel
-    services: docker
-    sudo: required
-    stage: acceptance
-  - bundler_args: 
-    dist: trusty
-    env: PLATFORMS=scientificlinux6_puppet5
-    rvm: 2.5.3
-    before_script:
-    - bundle exec rake 'litmus:provision_list[waffle_scientificlinux6]'
-    - bundle exec rake 'litmus:install_agent[puppet5]'
-    - bundle exec rake litmus:install_module
-    script:
-    - bundle exec rake litmus:acceptance:parallel
-    services: docker
-    sudo: required
-    stage: acceptance
-  - bundler_args: 
-    dist: trusty
-    env: PLATFORMS=scientificlinux6_puppet6
-    rvm: 2.5.3
-    before_script:
-    - bundle exec rake 'litmus:provision_list[waffle_scientificlinux6]'
-    - bundle exec rake 'litmus:install_agent[puppet6]'
-    - bundle exec rake litmus:install_module
-    script:
-    - bundle exec rake litmus:acceptance:parallel
-    services: docker
-    sudo: required
-    stage: acceptance
-  - bundler_args: 
-    dist: trusty
-    env: PLATFORMS=el7_puppet5
-    rvm: 2.5.3
-    before_script:
-    - bundle exec rake 'litmus:provision_list[waffle_el7]'
-    - bundle exec rake 'litmus:install_agent[puppet5]'
-    - bundle exec rake litmus:install_module
-    script:
-    - bundle exec rake litmus:acceptance:parallel
-    services: docker
-    sudo: required
-    stage: acceptance
-  - bundler_args: 
-    dist: trusty
-    env: PLATFORMS=el7_puppet6
-    rvm: 2.5.3
-    before_script:
-    - bundle exec rake 'litmus:provision_list[waffle_el7]'
-    - bundle exec rake 'litmus:install_agent[puppet6]'
-    - bundle exec rake litmus:install_module
-    script:
-    - bundle exec rake litmus:acceptance:parallel
-    services: docker
-    sudo: required
-    stage: acceptance
-  simplecov: true
 appveyor.yml:
   delete: true
+
 Gemfile:
   optional:
     ":development":
     - gem: github_changelog_generator
-      git: https://github.com/skywinder/github-changelog-generator
-      ref: 20ee04ba1234e9e83eb2ffb5056e23d641c7a018
-      condition: Gem::Version.new(RUBY_VERSION.dup) >= Gem::Version.new('2.2.2')
 Rakefile:
   changelog_user: puppetlabs
 spec/spec_helper.rb:
   mock_with: ":rspec"
   coverage_report: true
+.github/workflows/nightly.yml:
+  unmanaged: false
+.github/workflows/pr_test.yml:
+  unmanaged: false
+.gitpod.Dockerfile:
+  unmanaged: false
+.gitpod.yml:
+  unmanaged: false
+.github/workflows/auto_release.yml:
+  unmanaged: false
+.github/workflows/spec.yml:
+  checks: 'syntax lint metadata_lint check:symlinks check:git_ignore check:dot_underscore check:test_file rubocop'
+  unmanaged: false
+.github/workflows/release.yml:
+  unmanaged: false
+.travis.yml:
+  delete: true

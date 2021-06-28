@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # run a test task
 require 'spec_helper_acceptance'
 
@@ -7,11 +9,12 @@ describe 'postgresql task' do
         class { 'postgresql::server': } ->
         postgresql::server::db { 'spec1':
           user     => 'root1',
-          password => postgresql_password('root1', 'password'),
+          password => postgresql::postgresql_password('root1', 'password'),
         }
     MANIFEST
 
     it 'sets up a postgres db' do
+      export_locales('en_US.UTF-8 ')
       apply_manifest(pp, catch_failures: true)
     end
 

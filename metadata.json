@@ -1,7 +1,7 @@
 {
   "name": "puppetlabs-postgresql",
-  "version": "6.2.0",
-  "author": "Inkling/Puppet Labs",
+  "version": "7.2.0",
+  "author": "puppetlabs",
   "summary": "Offers support for basic management of PostgreSQL databases.",
   "license": "Apache-2.0",
   "source": "https://github.com/puppetlabs/puppetlabs-postgresql",
@@ -10,22 +10,21 @@
   "dependencies": [
     {
       "name": "puppetlabs/stdlib",
-      "version_requirement": ">= 4.13.1 < 7.0.0"
+      "version_requirement": ">= 4.13.1 < 8.0.0"
     },
     {
       "name": "puppetlabs/apt",
-      "version_requirement": ">= 2.0.0 < 8.0.0"
+      "version_requirement": ">= 2.0.0 < 9.0.0"
     },
     {
       "name": "puppetlabs/concat",
-      "version_requirement": ">= 1.1.0 < 7.0.0"
+      "version_requirement": ">= 4.1.0 < 8.0.0"
     }
   ],
   "operatingsystem_support": [
     {
       "operatingsystem": "RedHat",
       "operatingsystemrelease": [
-        "5",
         "6",
         "7",
         "8"
@@ -34,7 +33,6 @@
     {
       "operatingsystem": "CentOS",
       "operatingsystemrelease": [
-        "5",
         "6",
         "7",
         "8"
@@ -43,7 +41,6 @@
     {
       "operatingsystem": "OracleLinux",
       "operatingsystemrelease": [
-        "5",
         "6",
         "7"
       ]
@@ -66,7 +63,6 @@
     {
       "operatingsystem": "SLES",
       "operatingsystemrelease": [
-        "11",
         "12",
         "15"
       ]
@@ -76,17 +72,18 @@
       "operatingsystemrelease": [
         "14.04",
         "16.04",
-        "18.04"
+        "18.04",
+        "20.04"
       ]
     }
   ],
   "requirements": [
     {
       "name": "puppet",
-      "version_requirement": ">= 5.5.10 < 7.0.0"
+      "version_requirement": ">= 6.0.0 < 8.0.0"
     }
   ],
-  "pdk-version": "1.14.1",
-  "template-url": "https://github.com/puppetlabs/pdk-templates#master",
-  "template-ref": "heads/master-0-gfaf9e8b"
+  "pdk-version": "2.1.0",
+  "template-url": "https://github.com/puppetlabs/pdk-templates#main",
+  "template-ref": "heads/main-0-g03daa92"
 }
