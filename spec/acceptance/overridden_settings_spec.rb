@@ -1,18 +1,16 @@
+# frozen_string_literal: true
+
 require 'spec_helper_acceptance'
 
 # These tests are designed to ensure that the module, when ran overrides,
 # sets up everything correctly and allows us to connect to Postgres.
-describe 'postgresql::server', unless: UNSUPPORTED_PLATFORMS.include?(os[:family]) do
-  before(:all) do
-    install_iproute2
-  end
-
+describe 'postgresql::server' do
   let(:pp) do
     <<-MANIFEST
     class { 'postgresql::server':
       roles          => {
         'testusername' => {
-          password_hash => postgresql_password('testusername', 'supersecret'),
+          password_hash => postgresql::postgresql_password('testusername', 'supersecret'),
           createdb      => true,
         },
       },

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 describe 'postgresql::server::initdb', type: :class do
@@ -8,10 +10,12 @@ describe 'postgresql::server::initdb', type: :class do
   describe 'on RedHat' do
     let :facts do
       {
-        osfamily: 'RedHat',
-        operatingsystem: 'CentOS',
-        operatingsystemrelease: '6.0',
-        concat_basedir: tmpfilename('server'),
+        os: {
+          family: 'RedHat',
+          name: 'CentOS',
+          release: { 'full' => '6.0', 'major' => '6' },
+          selinux: { 'enabled' => true },
+        },
         kernel: 'Linux',
         id: 'root',
         path: '/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin',
@@ -46,10 +50,12 @@ describe 'postgresql::server::initdb', type: :class do
   describe 'on Amazon' do
     let :facts do
       {
-        osfamily: 'RedHat',
-        operatingsystem: 'Amazon',
-        operatingsystemrelease: '1.0',
-        concat_basedir: tmpfilename('server'),
+        os: {
+          family: 'RedHat',
+          name: 'Amazon',
+          release: { 'full' => '1.0', 'major' => '1' },
+          selinux: { 'enabled' => true },
+        },
         kernel: 'Linux',
         id: 'root',
         path: '/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin',
@@ -76,10 +82,12 @@ describe 'postgresql::server::initdb', type: :class do
   describe 'exec with module_workdir => /var/tmp' do
     let :facts do
       {
-        osfamily: 'RedHat',
-        operatingsystem: 'CentOS',
-        operatingsystemrelease: '6.0',
-        concat_basedir: tmpfilename('server'),
+        os: {
+          family: 'RedHat',
+          name: 'CentOS',
+          release: { 'full' => '6.0', 'major' => '6' },
+          selinux: { 'enabled' => true },
+        },
         kernel: 'Linux',
         id: 'root',
         path: '/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin',
@@ -105,10 +113,12 @@ describe 'postgresql::server::initdb', type: :class do
   describe 'exec with module_workdir => undef' do
     let :facts do
       {
-        osfamily: 'RedHat',
-        operatingsystem: 'CentOS',
-        operatingsystemrelease: '6.0',
-        concat_basedir: tmpfilename('server'),
+        os: {
+          family: 'RedHat',
+          name: 'CentOS',
+          release: { 'full' => '6.0', 'major' => '6' },
+          selinux: { 'enabled' => true },
+        },
         kernel: 'Linux',
         id: 'root',
         path: '/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin',
@@ -133,10 +143,12 @@ describe 'postgresql::server::initdb', type: :class do
   describe 'postgresql_psql with module_workdir => /var/tmp' do
     let :facts do
       {
-        osfamily: 'RedHat',
-        operatingsystem: 'CentOS',
-        operatingsystemrelease: '6.0',
-        concat_basedir: tmpfilename('server'),
+        os: {
+          family: 'RedHat',
+          name: 'CentOS',
+          release: { 'full' => '6.0', 'major' => '6' },
+          selinux: { 'enabled' => true },
+        },
         kernel: 'Linux',
         id: 'root',
         path: '/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin',

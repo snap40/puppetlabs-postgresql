@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 describe 'postgresql::server::contrib', type: :class do
@@ -7,11 +9,15 @@ describe 'postgresql::server::contrib', type: :class do
 
   let :facts do
     {
-      osfamily: 'Debian',
-      operatingsystem: 'Debian',
-      operatingsystemrelease: '8.0',
+      os: {
+        family: 'RedHat',
+        name: 'RedHat',
+        release: { 'major' => '8' },
+        selinux: {
+          enabled: false,
+        },
+      },
       kernel: 'Linux',
-      concat_basedir: tmpfilename('contrib'),
       id: 'root',
       path: '/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin',
     }
@@ -41,15 +47,33 @@ describe 'postgresql::server::contrib', type: :class do
   describe 'on Gentoo' do
     let :facts do
       {
-        osfamily: 'Gentoo',
-        operatingsystem: 'Gentoo',
+        os: {
+          family: 'Gentoo',
+          name: 'Gentoo',
+        },
       }
     end
 
-    it 'fails to compile' do
-      expect {
-        is_expected.to compile
-      }.to raise_error(%r{is not supported})
+    it 'postgresql-contrib should not be installed' do
+      is_expected.to compile
+      is_expected.not_to contain_package('postgresql-contrib')
+    end
+  end
+
+  describe 'on Debian' do
+    let :facts do
+      {
+        os: {
+          family: 'Debian',
+          name: 'Debian',
+          release: { 'full' => '8.0', 'major' => '8' },
+        },
+      }
+    end
+
+    it 'postgresql-contrib should not be installed' do
+      is_expected.to compile
+      is_expected.not_to contain_package('postgresql-contrib')
     end
   end
 end

@@ -1,9 +1,8 @@
+# frozen_string_literal: true
+
 require 'spec_helper_acceptance'
 
-describe 'postgresql::server', unless: UNSUPPORTED_PLATFORMS.include?(os[:family]) do
-  before(:all) do
-    install_iproute2
-  end
+describe 'postgresql::server', skip: 'IAC-1286' do
   let(:pp) do
     <<-MANIFEST
       class { 'postgresql::globals':
@@ -15,6 +14,7 @@ describe 'postgresql::server', unless: UNSUPPORTED_PLATFORMS.include?(os[:family
   end
 
   it 'with defaults' do
+    export_locales('en_NG.UTF8')
     idempotent_apply(pp)
     expect(port(5432)).to be_listening
     expect(psql('--command="\l" postgres', 'postgres').stdout).to match(%r{List of databases})

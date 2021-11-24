@@ -1,6 +1,8 @@
+# frozen_string_literal: true
+
 require 'spec_helper_acceptance'
 
-describe 'postgresql::server::db', unless: UNSUPPORTED_PLATFORMS.include?(os[:family]) do
+describe 'postgresql::server::db' do
   it 'creates a database' do
     begin
       tmpdir = run_shell('mktemp').stdout
@@ -37,7 +39,7 @@ describe 'postgresql::server::db', unless: UNSUPPORTED_PLATFORMS.include?(os[:fa
                                      else
                                        'obj_description'
                                      end
-      result = psql("--dbname postgresql-test-db --command=\"SELECT pg_catalog.#{comment_information_function}(d.oid, 'pg_database') FROM pg_catalog.pg_database d WHERE datname = 'postgresql-test-db' AND pg_catalog.#{comment_information_function}(d.oid, 'pg_database') = 'testcomment'\"") # rubocop:disable Metrics/LineLength
+      result = psql("--dbname postgresql-test-db --command=\"SELECT pg_catalog.#{comment_information_function}(d.oid, 'pg_database') FROM pg_catalog.pg_database d WHERE datname = 'postgresql-test-db' AND pg_catalog.#{comment_information_function}(d.oid, 'pg_database') = 'testcomment'\"") # rubocop:disable Layout/LineLength
       expect(result.stdout).to match(%r{\(1 row\)})
     ensure
       psql('--command=\'drop database "postgresql-test-db"\'')

@@ -1,13 +1,16 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 describe 'postgresql::server::reassign_owned_by', type: :define do
   let :facts do
     {
-      osfamily: 'Debian',
-      operatingsystem: 'Debian',
-      operatingsystemrelease: '8.0',
+      os: {
+        family: 'Debian',
+        name: 'Debian',
+        release: { 'full' => '8.0', 'major' => '8' },
+      },
       kernel: 'Linux',
-      concat_basedir: tmpfilename('reassign_owned_by'),
       id: 'root',
       path: '/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin',
     }
@@ -39,6 +42,6 @@ describe 'postgresql::server::reassign_owned_by', type: :define do
     is_expected.to contain_postgresql_psql('reassign_owned_by:test:REASSIGN OWNED BY "test_old_role" TO "test_new_role"')
       .with_command('REASSIGN OWNED BY "test_old_role" TO "test_new_role"')
       .with_onlyif(%r{SELECT tablename FROM pg_catalog.pg_tables WHERE\s*schemaname NOT IN \('pg_catalog', 'information_schema'\) AND\s*tableowner = 'test_old_role'.*}m)
-      .that_requires('Class[Postgresql::Server::Service]')
+      .that_requires('Service[postgresqld]')
   }
 end
