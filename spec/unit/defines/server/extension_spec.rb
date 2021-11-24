@@ -54,7 +54,7 @@ describe 'postgresql::server::extension', type: :define do # rubocop:disable RSp
 
     it {
       is_expected.to contain_package('postgis')
-        .with(ensure: 'present', name: 'postgis').that_comes_before('Postgresql_psql[template_postgis: CREATE EXTENSION "postgis"]')
+        .with(ensure: 'installed', name: 'postgis').that_comes_before('Postgresql_psql[template_postgis: CREATE EXTENSION "postgis"]')
     }
   end
 
@@ -86,7 +86,7 @@ describe 'postgresql::server::extension', type: :define do # rubocop:disable RSp
 
       it {
         is_expected.to contain_package('postgis')
-          .with(ensure: 'present', name: 'postgis').that_requires('Postgresql_psql[template_postgis: DROP EXTENSION "postgis"]')
+          .with(ensure: 'installed', name: 'postgis').that_requires('Postgresql_psql[template_postgis: DROP EXTENSION "postgis"]')
       }
     end
   end
@@ -132,7 +132,7 @@ describe 'postgresql::server::extension', type: :define do
       os: {
         family: 'Debian',
         name: 'Debian',
-        release: { 'full' => '6.0', 'major' => '6' },
+        release: { 'full' => '10.0', 'major' => '10' },
       },
       kernel: 'Linux',
       id: 'root',
@@ -148,9 +148,9 @@ describe 'postgresql::server::extension', type: :define do
     }
   end
 
-  it { is_expected.to contain_file('/var/lib/postgresql/8.4/main') } # FIXME: be more precise
-  it { is_expected.to contain_concat('/etc/postgresql/8.4/main/pg_hba.conf') } # FIXME: be more precise
-  it { is_expected.to contain_concat('/etc/postgresql/8.4/main/pg_ident.conf') } # FIXME: be more precise
+  it { is_expected.to contain_file('/var/lib/postgresql/11/main') } # FIXME: be more precise
+  it { is_expected.to contain_concat('/etc/postgresql/11/main/pg_hba.conf') } # FIXME: be more precise
+  it { is_expected.to contain_concat('/etc/postgresql/11/main/pg_ident.conf') } # FIXME: be more precise
 
   context 'with mandatory arguments only' do
     it {
@@ -166,7 +166,7 @@ describe 'postgresql::server::extension', type: :define do
       os: {
         family: 'Debian',
         name: 'Debian',
-        release: { 'full' => '6.0', 'major' => '6' },
+        release: { 'full' => '10.0', 'major' => '10' },
       },
       kernel: 'Linux',
       id: 'root',
