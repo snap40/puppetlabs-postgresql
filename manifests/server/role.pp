@@ -167,18 +167,11 @@ define postgresql::server::role (
       }
       if $pwd_hash_sql =~ Deferred {
         $pw_command = Deferred('sprintf', ["ALTER ROLE \"%s\" ENCRYPTED PASSWORD '%s'", $username, $pwd_hash_sql])
-        $unless_pw_command = Deferred('sprintf', ["SELECT 1 FROM pg_shadow WHERE usename = '%s' AND passwd = '%s'",
-            $username,
-            $pwd_hash_sql,
-          ]
-        )
       } else {
         $pw_command = "ALTER ROLE \"${username}\" ENCRYPTED PASSWORD '${pwd_hash_sql}'"
-        $unless_pw_command = "SELECT 1 FROM pg_shadow WHERE usename = '${username}' AND passwd = '${pwd_hash_sql}'"
       }
       postgresql_psql { "ALTER ROLE ${username} ENCRYPTED PASSWORD ****":
         command   => Sensitive($pw_command),
-        unless    => Sensitive($unless_pw_command),
         sensitive => true,
       }
     }
