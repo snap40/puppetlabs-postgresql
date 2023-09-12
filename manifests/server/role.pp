@@ -178,7 +178,7 @@ define postgresql::server::role (
       }
       postgresql_psql { "ALTER ROLE ${username} ENCRYPTED PASSWORD ****":
         command   => Sensitive($pw_command),
-        unless    => Sensitive($unless_pw_command),
+        # unless    => Sensitive($unless_pw_command),
         sensitive => true,
       }
     }
